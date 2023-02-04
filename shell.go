@@ -5,11 +5,12 @@ import (
 	"io"
 	"log"
 	"strings"
+	"wssh/constants"
 )
 
 const TokenSeparator = " "
 
-type LineHandler func(tokens []string)
+type LineHandler func(rl *readline.Instance, tokens []string)
 
 type Shell struct {
 	Handler LineHandler
@@ -22,8 +23,8 @@ func NewShell(fn LineHandler) *Shell {
 }
 
 func (sh Shell) Start() error {
-	l, err := readline.NewEx(&readline.Config{
-		Prompt:          "\033[31m»\033[0m ",
+	readlineInstance, err := readline.NewEx(&readline.Config{
+		Prompt:          constants.Prompt,
 		HistoryFile:     "/tmp/readline.tmp",
 		AutoComplete:    completer,
 		InterruptPrompt: "^C",
@@ -37,12 +38,12 @@ func (sh Shell) Start() error {
 		return err
 	}
 
-	defer l.Close()
-	l.CaptureExitSignal()
+	defer readlineInstance.Close()
+	readlineInstance.CaptureExitSignal()
 
-	log.SetOutput(l.Stderr())
+	log.SetOutput(readlineInstance.Stderr())
 	for {
-		line, err := l.Readline()
+		line, err := readlineInstance.Readline()
 		if err == readline.ErrInterrupt {
 			if len(line) == 0 {
 				break
@@ -55,7 +56,7 @@ func (sh Shell) Start() error {
 
 		line = strings.TrimSpace(line)
 
-		sh.Handler(strings.Split(line, TokenSeparator))
+		sh.Handler(readlineInstance, strings.Split(line, TokenSeparator))
 
 	}
 
