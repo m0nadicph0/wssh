@@ -3,11 +3,13 @@ package wss
 import (
 	"errors"
 	"fmt"
+	"github.com/fatih/color"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
 	"log"
 	"net/http"
+	"time"
 )
 
 var upgrades = websocket.Upgrader{
@@ -63,7 +65,7 @@ func (s WSServer) GetClientIDs() []string {
 }
 
 func (s WSServer) Start() {
-	router := gin.Default()
+	router := gin.New()
 	router.GET("/ws", func(c *gin.Context) {
 		clientID := getClientID(c)
 		conn, err := upgrades.Upgrade(c.Writer, c.Request, nil)
@@ -77,7 +79,7 @@ func (s WSServer) Start() {
 			// Read message from browser
 			mt, msg, err := conn.ReadMessage()
 			if err != nil {
-				log.Println("ERROR:", err)
+				color.Red(err.Error())
 				break
 			}
 			// Pass the message to the handler
@@ -94,6 +96,27 @@ func (s WSServer) BroadcastText(data string) {
 	for _, conn := range s.clientConnections {
 		_ = conn.WriteMessage(websocket.TextMessage, []byte(data))
 	}
+}
+
+func (s WSServer) CloseAllClients() {
+	for clientID, conn := range s.clientConnections {
+		conn.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseNormalClosure, ""))
+		time.Sleep(1 * time.Second)
+		conn.Close()
+		delete(s.clientConnections, clientID)
+	}
+}
+
+func (s WSServer) Close(clientID string) error {
+	conn, ok := s.clientConnections[clientID]
+	if !ok {
+		return errors.New("client ID not found")
+	}
+	conn.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseNormalClosure, ""))
+	time.Sleep(1 * time.Second)
+	conn.Close()
+	delete(s.clientConnections, clientID)
+	return nil
 }
 
 func getClientID(c *gin.Context) string {

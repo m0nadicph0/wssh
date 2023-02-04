@@ -12,6 +12,8 @@ var handlerMap = map[string]Handler{
 	"send":      send,
 	"list":      listClients,
 	"broadcast": broadcast,
+	"closeall":  closeAll,
+	"close":     closeClient,
 }
 
 type Handler func(ctx context.Context, args []string)

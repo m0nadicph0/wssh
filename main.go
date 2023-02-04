@@ -38,6 +38,8 @@ func main() {
 		readline.PcItem("send", readline.PcItemDynamic(listClientIDs(wss))),
 		readline.PcItem("list"),
 		readline.PcItem("broadcast"),
+		readline.PcItem("closeall"),
+		readline.PcItem("close", readline.PcItemDynamic(listClientIDs(wss))),
 	)
 
 	shell := NewShell(completer, func(rl *readline.Instance, tokens []string) {

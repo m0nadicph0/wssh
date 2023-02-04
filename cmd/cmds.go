@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"context"
+	"fmt"
 	"github.com/fatih/color"
 	"strings"
 	"wssh/constants"
@@ -33,4 +34,17 @@ func listClients(ctx context.Context, args []string) {
 func broadcast(ctx context.Context, args []string) {
 	data := strings.Join(args, " ")
 	getWS(ctx).BroadcastText(data)
+}
+
+func closeAll(ctx context.Context, args []string) {
+	getWS(ctx).CloseAllClients()
+}
+
+func closeClient(ctx context.Context, args []string) {
+	clientID := args[0]
+	err := getWS(ctx).Close(clientID)
+
+	if err != nil {
+		fmt.Println("ERROR:", err)
+	}
 }
