@@ -1,4 +1,4 @@
-#wssh
+# wssh
 
 A websocket server shell.
 
