@@ -53,6 +53,14 @@ func (s WSServer) WriteBinary(clientID string, message []byte) error {
 	}
 	return conn.WriteMessage(websocket.BinaryMessage, []byte(message))
 }
+func (s WSServer) GetClientIDs() []string {
+	keys := make([]string, 0, len(s.clientConnections))
+	for k := range s.clientConnections {
+		keys = append(keys, k)
+	}
+
+	return keys
+}
 
 func (s WSServer) Start() {
 	router := gin.Default()

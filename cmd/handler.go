@@ -10,6 +10,7 @@ import (
 var handlerMap = map[string]Handler{
 	"prompt": setPrompt,
 	"send":   send,
+	"list":   listClients,
 }
 
 type Handler func(ctx context.Context, args []string)

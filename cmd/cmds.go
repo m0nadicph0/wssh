@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"context"
+	"github.com/fatih/color"
 	"strings"
 	"wssh/constants"
 )
@@ -21,4 +22,12 @@ func send(ctx context.Context, args []string) {
 	clientID := args[0]
 	data := strings.Join(args[1:], " ")
 	getWS(ctx).WriteText(clientID, data)
+}
+
+func listClients(ctx context.Context, args []string) {
+	wss := getWS(ctx)
+	cids := wss.GetClientIDs()
+	for _, clientID := range cids {
+		color.Blue(clientID)
+	}
 }
