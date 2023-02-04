@@ -25,9 +25,12 @@ func send(ctx context.Context, args []string) {
 }
 
 func listClients(ctx context.Context, args []string) {
-	wss := getWS(ctx)
-	cids := wss.GetClientIDs()
-	for _, clientID := range cids {
-		color.Blue(clientID)
+	for _, clientID := range getWS(ctx).GetClientIDs() {
+		color.Yellow(clientID)
 	}
+}
+
+func broadcast(ctx context.Context, args []string) {
+	data := strings.Join(args, " ")
+	getWS(ctx).BroadcastText(data)
 }

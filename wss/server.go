@@ -90,6 +90,12 @@ func (s WSServer) Start() {
 
 }
 
+func (s WSServer) BroadcastText(data string) {
+	for _, conn := range s.clientConnections {
+		_ = conn.WriteMessage(websocket.TextMessage, []byte(data))
+	}
+}
+
 func getClientID(c *gin.Context) string {
 	clientID, ok := c.GetQuery("cid")
 	if !ok {

@@ -11,6 +11,17 @@ import (
 	"wssh/wss"
 )
 
+func listClientIDs(wss *wss.WSServer) func(string) []string {
+	return func(line string) []string {
+		ids := make([]string, 0)
+		clientIDs := wss.GetClientIDs()
+		for _, clientID := range clientIDs {
+			ids = append(ids, clientID)
+		}
+		return ids
+	}
+}
+
 func main() {
 
 	wss := wss.NewWSServer("0.0.0.0", 9696, func(clientID string, messageType int, message []byte) {
@@ -19,8 +30,17 @@ func main() {
 	})
 
 	wss.Start()
+	var completer = readline.NewPrefixCompleter(
+		readline.PcItem("mode",
+			readline.PcItem("vi"),
+			readline.PcItem("emacs"),
+		),
+		readline.PcItem("send", readline.PcItemDynamic(listClientIDs(wss))),
+		readline.PcItem("list"),
+		readline.PcItem("broadcast"),
+	)
 
-	shell := NewShell(func(rl *readline.Instance, tokens []string) {
+	shell := NewShell(completer, func(rl *readline.Instance, tokens []string) {
 		command := tokens[0]
 		args := tokens[1:]
 		fn, ok := cmd.LookUp(command)

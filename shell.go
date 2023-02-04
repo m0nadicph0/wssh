@@ -13,12 +13,14 @@ const TokenSeparator = " "
 type LineHandler func(rl *readline.Instance, tokens []string)
 
 type Shell struct {
-	Handler LineHandler
+	Handler   LineHandler
+	completer readline.AutoCompleter
 }
 
-func NewShell(fn LineHandler) *Shell {
+func NewShell(completer readline.AutoCompleter, fn LineHandler) *Shell {
 	return &Shell{
-		Handler: fn,
+		Handler:   fn,
+		completer: completer,
 	}
 }
 
@@ -26,7 +28,7 @@ func (sh Shell) Start() error {
 	readlineInstance, err := readline.NewEx(&readline.Config{
 		Prompt:          constants.Prompt,
 		HistoryFile:     "/tmp/readline.tmp",
-		AutoComplete:    completer,
+		AutoComplete:    sh.completer,
 		InterruptPrompt: "^C",
 		EOFPrompt:       "exit",
 
@@ -62,13 +64,6 @@ func (sh Shell) Start() error {
 
 	return nil
 }
-
-var completer = readline.NewPrefixCompleter(
-	readline.PcItem("mode",
-		readline.PcItem("vi"),
-		readline.PcItem("emacs"),
-	),
-)
 
 func filterInput(r rune) (rune, bool) {
 	switch r {

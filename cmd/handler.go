@@ -8,9 +8,10 @@ import (
 )
 
 var handlerMap = map[string]Handler{
-	"prompt": setPrompt,
-	"send":   send,
-	"list":   listClients,
+	"prompt":    setPrompt,
+	"send":      send,
+	"list":      listClients,
+	"broadcast": broadcast,
 }
 
 type Handler func(ctx context.Context, args []string)
