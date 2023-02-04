@@ -57,7 +57,7 @@ func (s WSServer) WriteBinary(clientID string, message []byte) error {
 func (s WSServer) Start() {
 	router := gin.Default()
 	router.GET("/ws", func(c *gin.Context) {
-		clientID := uuid.New().String()
+		clientID := getClientID(c)
 		conn, err := upgrades.Upgrade(c.Writer, c.Request, nil)
 		if err != nil {
 			log.Println("ERROR:", err)
@@ -80,4 +80,12 @@ func (s WSServer) Start() {
 		router.Run(s.Addr())
 	}()
 
+}
+
+func getClientID(c *gin.Context) string {
+	clientID, ok := c.GetQuery("cid")
+	if !ok {
+		return uuid.New().String()
+	}
+	return clientID
 }
